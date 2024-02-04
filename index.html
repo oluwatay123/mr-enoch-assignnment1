@@ -1,0 +1,75 @@
+    var createScene = function () {
+        // This creates a basic Babylon Scene object (non-mesh)
+        var scene = new BABYLON.Scene(engine);
+
+        // This creates and positions a free camera (non-mesh)
+        var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(8, 9, -5), scene);
+
+        // This targets the camera to scene origin
+        camera.setTarget(BABYLON.Vector3.Zero());
+
+        // This attaches the camera to the canvas
+        camera.attachControl(canvas, true);
+
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 1), scene);
+
+        // Default intensity is 1. Let's dim the light a small amount
+        light.intensity = 0.7;
+
+        // Create ground
+        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+
+        // Create ground material
+    const groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
+    groundMaterial.diffuseColor = BABYLON.Color3.Yellow();
+    ground.material = groundMaterial;
+
+    let groundTexture = new BABYLON.Texture(Assets.textures.checkerboard_basecolor_png.rootUrl, scene);
+    groundMaterial.diffuseTexture = groundTexture;
+
+        // Create box
+        var box = BABYLON.MeshBuilder.CreateBox("box", { size: 2 }, scene);
+
+        // Move the box upward 1/2 its height
+        box.position.y = 1;
+
+        // Create material for the box
+        var boxMaterial = new BABYLON.StandardMaterial("boxMaterial", scene);
+        boxMaterial.diffuseColor = BABYLON.Color3.Red(); // Set the color
+        boxMaterial.diffuseTexture = new BABYLON.Texture("textures/wood.jpg", scene); // Set the texture
+        box.material = boxMaterial;
+
+    // Define animation
+    var animationBox = new BABYLON.Animation(
+        "boxAnimation",
+        "position", // property to animate
+        30, // frames per second
+        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE // animation loop mode
+    );
+
+    // Define keyframes
+    var keys = [];
+    var radius = 2; // Radius of the circular path
+    var frames = 300; // Number of frames for the animation
+    for (var i = 0; i <= frames; i++) {
+        var theta = (i / frames) * Math.PI * 2; // Angle in radians
+        var x = Math.cos(theta) * radius;
+        var z = Math.sin(theta) * radius;
+        keys.push({
+            frame: i,
+            value: new BABYLON.Vector3(x, 1, z) // Position along the circular path
+        });
+    }
+
+    // Set animation keys
+    animationBox.setKeys(keys);
+
+    // Apply animation to the box
+    box.animations = [animationBox];
+    scene.beginAnimation(box, 0, frames, true); // start animation
+
+
+        return scene;
+};
